@@ -1,0 +1,35 @@
+services:
+  - type: web
+    name: optillm-api
+    runtime: python
+    plan: free
+    region: ohio
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: optillm-db
+          property: connectionString
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: CORS_ORIGINS
+        sync: false
+      - key: EMBEDDING_PROVIDER
+        value: local
+      - key: DEFAULT_SIMPLE_MODEL
+        value: gpt-4o-mini
+      - key: DEFAULT_COMPLEX_MODEL
+        value: gpt-4o
+      - key: COMPLEXITY_THRESHOLD
+        value: "0.50"
+      - key: CACHE_SIMILARITY_THRESHOLD
+        value: "0.92"
+
+databases:
+  - name: optillm-db
+    plan: free
+    region: ohio
+    postgresMajorVersion: "16"

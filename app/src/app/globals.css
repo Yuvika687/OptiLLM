@@ -1,0 +1,255 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+/* ============================================================
+   OptiLLM Design System — CSS Custom Properties
+   Based on DESIGN.md: "Linear meets Stripe" dark-mode aesthetic
+   ============================================================ */
+
+:root {
+  /* ── Base Surfaces (Deep Charcoal) ─────────────────────────── */
+  --surface:                   #0d141d;
+  --surface-dim:               #0d141d;
+  --surface-bright:            #333a44;
+  --surface-container-lowest:  #080f17;
+  --surface-container-low:     #151c25;
+  --surface-container:         #192029;
+  --surface-container-high:    #232a34;
+  --surface-container-highest: #2e353f;
+
+  /* ── On-Surface Text ──────────────────────────────────────── */
+  --on-surface:         #dce3f0;
+  --on-surface-variant:  #c2c6d6;
+  --inverse-surface:     #dce3f0;
+  --inverse-on-surface:  #2a313b;
+
+  /* ── Borders / Outlines ───────────────────────────────────── */
+  --outline:          #8c909f;
+  --outline-variant:  #424754;
+  --surface-tint:     #adc6ff;
+
+  /* ── Primary (Electric Blue) ──────────────────────────────── */
+  --primary:               #adc6ff;
+  --on-primary:            #002e6a;
+  --primary-container:     #4d8eff;
+  --on-primary-container:  #00285d;
+  --inverse-primary:       #005ac2;
+  --primary-fixed:         #d8e2ff;
+  --primary-fixed-dim:     #adc6ff;
+  --on-primary-fixed:      #001a42;
+  --on-primary-fixed-variant: #004395;
+
+  /* ── Secondary (Emerald Green — Savings) ──────────────────── */
+  --secondary:               #4edea3;
+  --on-secondary:            #003824;
+  --secondary-container:     #00a572;
+  --on-secondary-container:  #00311f;
+  --secondary-fixed:         #6ffbbe;
+  --secondary-fixed-dim:     #4edea3;
+  --on-secondary-fixed:      #002113;
+  --on-secondary-fixed-variant: #005236;
+
+  /* ── Tertiary (Amber — Warnings) ──────────────────────────── */
+  --tertiary:               #ffb95f;
+  --on-tertiary:            #472a00;
+  --tertiary-container:     #ca8100;
+  --on-tertiary-container:  #3e2400;
+  --tertiary-fixed:         #ffddb8;
+  --tertiary-fixed-dim:     #ffb95f;
+  --on-tertiary-fixed:      #2a1700;
+  --on-tertiary-fixed-variant: #653e00;
+
+  /* ── Error ────────────────────────────────────────────────── */
+  --error:               #ffb4ab;
+  --on-error:            #690005;
+  --error-container:     #93000a;
+  --on-error-container:  #ffdad6;
+
+  /* ── Shadcn Overrides — map to OptiLLM palette ────────────── */
+  --background:           #0B0F19;
+  --foreground:           #dce3f0;
+  --card:                 #111827;
+  --card-foreground:      #dce3f0;
+  --popover:              #111827;
+  --popover-foreground:   #dce3f0;
+  --muted:                #192029;
+  --muted-foreground:     #8c909f;
+  --accent:               #232a34;
+  --accent-foreground:    #dce3f0;
+  --destructive:          #ffb4ab;
+  --border:               #1F2937;
+  --input:                #1F2937;
+  --ring:                 #4d8eff;
+  --radius: 0.5rem;
+
+  /* ── Chart accent colors ──────────────────────────────────── */
+  --chart-1: #4d8eff;
+  --chart-2: #4edea3;
+  --chart-3: #ffb95f;
+  --chart-4: #adc6ff;
+  --chart-5: #00a572;
+
+  /* ── Sidebar (maps to OptiLLM surface) ────────────────────── */
+  --sidebar:                    #0d141d;
+  --sidebar-foreground:         #dce3f0;
+  --sidebar-primary:            #adc6ff;
+  --sidebar-primary-foreground: #002e6a;
+  --sidebar-accent:             #192029;
+  --sidebar-accent-foreground:  #dce3f0;
+  --sidebar-border:             #424754;
+  --sidebar-ring:               #4d8eff;
+}
+
+/* ── Tailwind v4 @theme — register design tokens ────────────── */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  /* Fonts */
+  --font-sans: var(--font-geist-sans), "Geist Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), "Geist Mono", ui-monospace, monospace;
+  --font-heading: var(--font-geist-sans), "Geist Sans", ui-sans-serif, system-ui, sans-serif;
+
+  /* ── OptiLLM Design System Colors ─────────────────────────── */
+  --color-surface: var(--surface);
+  --color-surface-dim: var(--surface-dim);
+  --color-surface-bright: var(--surface-bright);
+  --color-surface-container-lowest: var(--surface-container-lowest);
+  --color-surface-container-low: var(--surface-container-low);
+  --color-surface-container: var(--surface-container);
+  --color-surface-container-high: var(--surface-container-high);
+  --color-surface-container-highest: var(--surface-container-highest);
+  --color-on-surface: var(--on-surface);
+  --color-on-surface-variant: var(--on-surface-variant);
+  --color-inverse-surface: var(--inverse-surface);
+  --color-inverse-on-surface: var(--inverse-on-surface);
+  --color-outline: var(--outline);
+  --color-outline-variant: var(--outline-variant);
+  --color-surface-tint: var(--surface-tint);
+
+  --color-primary: var(--primary);
+  --color-on-primary: var(--on-primary);
+  --color-primary-container: var(--primary-container);
+  --color-on-primary-container: var(--on-primary-container);
+  --color-inverse-primary: var(--inverse-primary);
+
+  --color-secondary: var(--secondary);
+  --color-on-secondary: var(--on-secondary);
+  --color-secondary-container: var(--secondary-container);
+  --color-on-secondary-container: var(--on-secondary-container);
+
+  --color-tertiary: var(--tertiary);
+  --color-on-tertiary: var(--on-tertiary);
+  --color-tertiary-container: var(--tertiary-container);
+  --color-on-tertiary-container: var(--on-tertiary-container);
+
+  --color-error: var(--error);
+  --color-on-error: var(--on-error);
+  --color-error-container: var(--error-container);
+  --color-on-error-container: var(--on-error-container);
+
+  /* Shadcn mapped colors */
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary-foreground: var(--on-primary);
+  --color-secondary-foreground: var(--on-secondary);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  /* Chart */
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+
+  /* Sidebar */
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  /* Radius */
+  --radius-sm: calc(var(--radius) * 0.5);
+  --radius-md: var(--radius);
+  --radius-lg: calc(var(--radius) * 1.5);
+  --radius-xl: calc(var(--radius) * 2);
+  --radius-2xl: calc(var(--radius) * 2.5);
+  --radius-3xl: calc(var(--radius) * 3);
+  --radius-4xl: calc(var(--radius) * 3.5);
+}
+
+/* ── Base Styles ────────────────────────────────────────────── */
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  html {
+    @apply font-sans;
+  }
+}
+
+/* ── Glass Panel Utility (from DESIGN.md Level 2) ───────────── */
+.glass-panel {
+  background: rgba(17, 24, 39, 0.7);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--outline-variant);
+}
+
+/* ── Highlight Glow (featured metric cards) ─────────────────── */
+.highlight-glow::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 150px;
+  height: 150px;
+  background: radial-gradient(circle at top right, rgba(173, 198, 255, 0.05) 0%, transparent 70%);
+  pointer-events: none;
+  border-radius: inherit;
+}
+
+/* ── Electric glow for primary buttons ──────────────────────── */
+.electric-glow {
+  box-shadow: 0 0 15px 2px rgba(173, 198, 255, 0.15);
+}
+
+/* ── Custom scrollbar (dark theme) ──────────────────────────── */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--surface-container-highest);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--outline-variant);
+}
+
+/* ── Table row hover ────────────────────────────────────────── */
+.table-row-hover:hover {
+  background-color: #1F2937;
+}

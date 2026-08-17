@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>OptiLLM - Cache Management</title>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Config -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-tertiary-fixed-variant": "#653e00",
+                        "secondary": "#4edea3",
+                        "surface-container-high": "#232a34",
+                        "tertiary-fixed": "#ffddb8",
+                        "on-secondary-container": "#00311f",
+                        "on-error": "#690005",
+                        "surface": "#0d141d",
+                        "on-primary-container": "#00285d",
+                        "surface-dim": "#0d141d",
+                        "on-surface": "#dce3f0",
+                        "on-secondary-fixed": "#002113",
+                        "surface-variant": "#2e353f",
+                        "primary-fixed": "#d8e2ff",
+                        "error": "#ffb4ab",
+                        "inverse-surface": "#dce3f0",
+                        "surface-tint": "#adc6ff",
+                        "inverse-on-surface": "#2a313b",
+                        "on-primary-fixed": "#001a42",
+                        "primary-fixed-dim": "#adc6ff",
+                        "surface-container-low": "#151c25",
+                        "inverse-primary": "#005ac2",
+                        "on-secondary": "#003824",
+                        "outline": "#8c909f",
+                        "error-container": "#93000a",
+                        "tertiary-fixed-dim": "#ffb95f",
+                        "surface-bright": "#333a44",
+                        "on-primary-fixed-variant": "#004395",
+                        "tertiary": "#ffb95f",
+                        "on-surface-variant": "#c2c6d6",
+                        "on-error-container": "#ffdad6",
+                        "surface-container-highest": "#2e353f",
+                        "on-tertiary": "#472a00",
+                        "primary-container": "#4d8eff",
+                        "outline-variant": "#424754",
+                        "secondary-container": "#00a572",
+                        "on-background": "#dce3f0",
+                        "on-primary": "#002e6a",
+                        "primary": "#adc6ff",
+                        "tertiary-container": "#ca8100",
+                        "surface-container-lowest": "#080f17",
+                        "surface-container": "#192029",
+                        "on-tertiary-container": "#3e2400",
+                        "background": "#0d141d",
+                        "on-secondary-fixed-variant": "#005236",
+                        "on-tertiary-fixed": "#2a1700",
+                        "secondary-fixed": "#6ffbbe",
+                        "secondary-fixed-dim": "#4edea3"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "2xl": "48px",
+                        "lg": "24px",
+                        "sm": "8px",
+                        "md": "16px",
+                        "xs": "4px",
+                        "gutter": "20px",
+                        "xl": "32px",
+                        "3xl": "64px",
+                        "base": "4px",
+                        "container-max": "1440px"
+                    },
+                    "fontFamily": {
+                        "body-lg": ["Geist Sans"],
+                        "display-lg": ["Geist Sans"],
+                        "label-caps": ["Geist Sans"],
+                        "headline-lg": ["Geist Sans"],
+                        "body-md": ["Geist Sans"],
+                        "headline-md": ["Geist Sans"],
+                        "body-sm": ["Geist Sans"],
+                        "mono-md": ["Geist Mono"]
+                    },
+                    "fontSize": {
+                        "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+                        "label-caps": ["11px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+                        "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "500" }],
+                        "body-sm": ["13px", { "lineHeight": "18px", "fontWeight": "400" }],
+                        "mono-md": ["13px", { "lineHeight": "20px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        /* Base styles to support custom typography setup */
+        @import url('https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400&display=swap');
+        
+        body {
+            background-color: theme('colors.background');
+            color: theme('colors.on-background');
+        }
+        
+        /* Custom scrollbar for data tables */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: theme('colors.surface-container-lowest');
+        }
+        ::-webkit-scrollbar-thumb {
+            background: theme('colors.surface-variant');
+            border-radius: theme('borderRadius.full');
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: theme('colors.outline-variant');
+        }
+    </style>
+</head>
+<body class="font-body-md text-body-md antialiased min-h-screen overflow-x-hidden selection:bg-primary-container selection:text-on-primary-container">
+<!-- Shell: SideNavBar -->
+<nav class="fixed left-0 top-0 h-screen w-64 bg-surface dark:bg-surface border-r border-outline-variant flex flex-col py-lg z-40 shadow-none">
+<div class="px-md mb-xl flex items-center gap-sm">
+<div class="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-on-primary">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">dataset</span>
+</div>
+<div>
+<h1 class="font-headline-md text-headline-md font-bold text-primary dark:text-primary leading-none">OptiLLM</h1>
+<span class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-widest">AI Gateway</span>
+</div>
+</div>
+<ul class="flex-1 flex flex-col gap-xs px-sm overflow-y-auto">
+<li>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant dark:text-on-surface-variant hover:text-on-surface hover:bg-surface-container-highest transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-body-md text-body-md">Dashboard</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant dark:text-on-surface-variant hover:text-on-surface hover:bg-surface-container-highest transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">science</span>
+<span class="font-body-md text-body-md">Playground</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant dark:text-on-surface-variant hover:text-on-surface hover:bg-surface-container-highest transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">history</span>
+<span class="font-body-md text-body-md">Requests</span>
+</a>
+</li>
+<!-- Active Tab -->
+<li>
+<a aria-current="page" class="flex items-center gap-md px-md py-sm rounded-lg text-primary dark:text-primary font-bold border-l-2 border-primary bg-primary-container/10 transition-colors duration-200" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">database</span>
+<span class="font-body-md text-body-md">Cache</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant dark:text-on-surface-variant hover:text-on-surface hover:bg-surface-container-highest transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">route</span>
+<span class="font-body-md text-body-md">Models &amp; Routing</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant dark:text-on-surface-variant hover:text-on-surface hover:bg-surface-container-highest transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">description</span>
+<span class="font-body-md text-body-md">Documents</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant dark:text-on-surface-variant hover:text-on-surface hover:bg-surface-container-highest transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">analytics</span>
+<span class="font-body-md text-body-md">Analytics</span>
+</a>
+</li>
+</ul>
+<div class="mt-auto px-sm pt-md border-t border-outline-variant/30">
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant dark:text-on-surface-variant hover:text-on-surface hover:bg-surface-container-highest transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-body-md text-body-md">Settings</span>
+</a>
+</div>
+</nav>
+<!-- Shell: TopNavBar -->
+<header class="fixed top-0 right-0 left-64 h-16 bg-surface/80 backdrop-blur-xl border-b border-outline-variant flex justify-between items-center px-lg w-[calc(100%-16rem)] z-30 shadow-none">
+<!-- Search -->
+<div class="flex-1 max-w-md">
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant group-focus-within:text-primary transition-colors text-[20px]">search</span>
+<input class="w-full bg-surface-container-low border border-outline-variant rounded-lg pl-10 pr-4 py-1.5 text-body-md font-body-md text-on-surface placeholder:text-on-surface-variant focus:border-primary focus:ring-1 focus:ring-primary transition-shadow bg-transparent" placeholder="Search prompts, endpoints..." type="text"/>
+</div>
+</div>
+<!-- Right Actions -->
+<div class="flex items-center gap-md">
+<nav class="hidden lg:flex items-center gap-lg mr-lg">
+<a class="font-body-md text-body-md text-primary font-bold border-b-2 border-primary pb-1" href="#">Production</a>
+<a class="font-body-md text-body-md text-on-surface-variant hover:text-primary transition-colors pb-1 border-b-2 border-transparent" href="#">Staging</a>
+</nav>
+<div class="h-6 w-px bg-outline-variant mx-sm"></div>
+<button class="w-8 h-8 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-surface-container-highest hover:text-on-surface transition-colors">
+<span class="material-symbols-outlined text-[20px]">notifications</span>
+</button>
+<button class="w-8 h-8 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-surface-container-highest hover:text-on-surface transition-colors">
+<span class="material-symbols-outlined text-[20px]">help</span>
+</button>
+<button class="w-8 h-8 rounded-full bg-surface-container-highest border border-outline-variant overflow-hidden ml-xs focus:ring-2 focus:ring-primary focus:outline-none">
+<img alt="User Avatar" class="w-full h-full object-cover" data-alt="A small, stylized profile avatar featuring an abstract geometric pattern in cool blue and dark gray tones, designed in a sleek, minimalist aesthetic suitable for a high-tech dashboard interface." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCT_sN2qxqnqU2BlLThPuz2jMI-PW6-ejd4vqSW_a2lf085XSGO-jTTQFo0_vS7IMFvTwsfoySJCpkzXr5Tygr0S9jrSpiffi_HHu9nVc9_3MN1DTxFt7hfBgewKEtUn8cKYkqyIflJg6bEFAWj5nDygDH_FA_lPZh7l2eRlhUP4pJp17mPqn3KcocxTRKNug-EJQZgM2Z8m1zkADrx28R65Z1PU1_TQpOpSqx6t8MGy8HE1biTEaW4y8DeLY1OP0eXNvKT0-Dlfjt9"/>
+</button>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="ml-64 pt-[calc(64px+32px)] px-xl pb-2xl max-w-[1600px]">
+<!-- Page Header -->
+<div class="flex justify-between items-end mb-xl">
+<div>
+<h2 class="font-headline-lg text-headline-lg text-on-surface">Cache Management</h2>
+<p class="font-body-md text-body-md text-on-surface-variant mt-1">Optimize performance and reduce API costs through semantic similarity caching.</p>
+</div>
+<div class="flex items-center gap-md">
+<!-- Dropdown Action -->
+<div class="relative inline-block text-left">
+<button class="inline-flex items-center gap-2 px-4 py-2 bg-surface-container border border-outline-variant rounded-lg font-body-sm text-body-sm text-on-surface hover:bg-surface-container-highest transition-colors focus:outline-none focus:ring-2 focus:ring-primary" type="button">
+<span class="material-symbols-outlined text-[18px]">rule_folder</span>
+                        Invalidate by Intent
+                        <span class="material-symbols-outlined text-[16px]">expand_more</span>
+</button>
+</div>
+<button class="inline-flex items-center gap-2 px-4 py-2 bg-error/10 border border-error/20 rounded-lg font-body-sm text-body-sm text-error hover:bg-error/20 transition-colors focus:outline-none focus:ring-2 focus:ring-error" type="button">
+<span class="material-symbols-outlined text-[18px]">delete_sweep</span>
+                    Clear All Cache
+                </button>
+</div>
+</div>
+<!-- Metrics Bento Grid -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-gutter mb-xl">
+<!-- Metric Card 1 -->
+<div class="bg-surface-container-low border border-outline-variant rounded-xl p-lg relative overflow-hidden group">
+<div class="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-3xl -mr-16 -mt-16 transition-opacity group-hover:bg-primary/10"></div>
+<div class="flex items-center gap-3 mb-4">
+<div class="w-8 h-8 rounded-lg bg-surface-container-highest border border-outline-variant/50 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[18px]">hard_drive</span>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface-variant font-medium">Total Cache Size</span>
+</div>
+<div class="font-headline-lg text-headline-lg text-on-surface tracking-tight">4.2 <span class="font-headline-md text-headline-md text-on-surface-variant">GB</span></div>
+<div class="mt-2 flex items-center gap-1.5 font-label-caps text-label-caps text-secondary">
+<span class="material-symbols-outlined text-[14px]">trending_up</span>
+<span>+12% this week</span>
+</div>
+</div>
+<!-- Metric Card 2 -->
+<div class="bg-surface-container-low border border-outline-variant rounded-xl p-lg relative overflow-hidden group">
+<div class="absolute top-0 right-0 w-32 h-32 bg-secondary/5 rounded-full blur-3xl -mr-16 -mt-16 transition-opacity group-hover:bg-secondary/10"></div>
+<div class="flex items-center gap-3 mb-4">
+<div class="w-8 h-8 rounded-lg bg-surface-container-highest border border-outline-variant/50 flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined text-[18px]">bolt</span>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface-variant font-medium">Hit Rate (Last 7d)</span>
+</div>
+<div class="font-headline-lg text-headline-lg text-on-surface tracking-tight">48<span class="font-headline-md text-headline-md text-on-surface-variant">%</span></div>
+<div class="mt-2 flex items-center gap-1.5 font-label-caps text-label-caps text-on-surface-variant">
+<span class="material-symbols-outlined text-[14px]">horizontal_rule</span>
+<span>Stable baseline</span>
+</div>
+</div>
+<!-- Metric Card 3 -->
+<div class="bg-surface-container-low border border-outline-variant rounded-xl p-lg relative overflow-hidden group">
+<div class="absolute top-0 right-0 w-32 h-32 bg-tertiary/5 rounded-full blur-3xl -mr-16 -mt-16 transition-opacity group-hover:bg-tertiary/10"></div>
+<div class="flex items-center gap-3 mb-4">
+<div class="w-8 h-8 rounded-lg bg-surface-container-highest border border-outline-variant/50 flex items-center justify-center text-tertiary">
+<span class="material-symbols-outlined text-[18px]">savings</span>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface-variant font-medium">Total Savings</span>
+</div>
+<div class="font-headline-lg text-headline-lg text-on-surface tracking-tight"><span class="font-headline-md text-headline-md text-on-surface-variant mr-1">$</span>1,240</div>
+<div class="mt-2 flex items-center gap-1.5 font-label-caps text-label-caps text-secondary">
+<span class="material-symbols-outlined text-[14px]">trending_up</span>
+<span>+$142 this week</span>
+</div>
+</div>
+</div>
+<!-- Interactive Settings Panel -->
+<div class="bg-surface-container border border-outline-variant rounded-xl p-lg mb-xl shadow-[0_4px_24px_-4px_rgba(0,0,0,0.5)]">
+<h3 class="font-headline-md text-headline-md text-on-surface mb-md">Global Cache Settings</h3>
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-xl">
+<!-- Slider Control -->
+<div class="flex flex-col justify-center">
+<div class="flex justify-between items-end mb-sm">
+<div>
+<label class="font-body-md text-body-md text-on-surface font-medium block" for="similarity-threshold">Semantic Similarity Threshold</label>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Determines how closely a new prompt must match a cached one.</span>
+</div>
+<div class="font-mono-md text-mono-md text-primary bg-primary/10 px-2 py-1 rounded border border-primary/20">0.92</div>
+</div>
+<div class="relative w-full h-8 flex items-center">
+<input class="w-full h-1 bg-surface-variant rounded-lg appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/50 [&amp;::-webkit-slider-thumb]:appearance-none [&amp;::-webkit-slider-thumb]:w-4 [&amp;::-webkit-slider-thumb]:h-4 [&amp;::-webkit-slider-thumb]:bg-primary [&amp;::-webkit-slider-thumb]:rounded-full [&amp;::-webkit-slider-thumb]:shadow-[0_0_10px_rgba(173,198,255,0.5)]" id="similarity-threshold" max="0.98" min="0.75" step="0.01" type="range" value="0.92"/>
+<div class="absolute -bottom-4 left-0 w-full flex justify-between font-label-caps text-label-caps text-on-surface-variant">
+<span>0.75 (Loose)</span>
+<span>0.98 (Strict)</span>
+</div>
+</div>
+</div>
+<!-- Info/Action context -->
+<div class="bg-surface-container-low border border-outline-variant/50 rounded-lg p-md flex gap-4 items-start">
+<span class="material-symbols-outlined text-tertiary mt-0.5">info</span>
+<div>
+<p class="font-body-sm text-body-sm text-on-surface">A threshold of <strong class="text-primary">0.92</strong> provides an optimal balance between hit rate and response accuracy for general instruct tasks. Consider lowering to 0.85 for summarization tasks to increase cache hits.</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Data Table Section -->
+<div class="bg-surface-container-low border border-outline-variant rounded-xl flex flex-col overflow-hidden">
+<!-- Table Toolbar -->
+<div class="p-md border-b border-outline-variant flex justify-between items-center bg-surface-container/50">
+<h3 class="font-headline-md text-headline-md text-on-surface">Cached Items</h3>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px]">filter_list</span>
+<input class="w-64 bg-surface border border-outline-variant rounded-lg pl-9 pr-3 py-1.5 font-body-sm text-body-sm text-on-surface placeholder:text-on-surface-variant focus:border-primary focus:ring-1 focus:ring-primary transition-shadow" placeholder="Filter prompts..." type="text"/>
+</div>
+</div>
+<!-- Table -->
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-lowest border-b border-outline-variant">
+<th class="py-3 px-md font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider font-medium">Prompt Snippet</th>
+<th class="py-3 px-md font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider font-medium">Similarity Thresh.</th>
+<th class="py-3 px-md font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider font-medium">Total Hits</th>
+<th class="py-3 px-md font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider font-medium">Last Used</th>
+<th class="py-3 px-md font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider font-medium text-right">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant/50">
+<!-- Row 1 -->
+<tr class="hover:bg-surface-container-highest transition-colors group">
+<td class="py-3 px-md">
+<div class="font-mono-md text-mono-md text-on-surface truncate max-w-md" title="Translate the following English text to French: 'The architecture of modern web applications...' ">
+                                    Translate the following English text to Fre...
+                                </div>
+</td>
+<td class="py-3 px-md">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-mono-md bg-surface-variant text-on-surface-variant border border-outline-variant/50">
+                                    0.95
+                                </span>
+</td>
+<td class="py-3 px-md font-mono-md text-mono-md text-on-surface">1,402</td>
+<td class="py-3 px-md font-body-sm text-body-sm text-on-surface-variant">2 mins ago</td>
+<td class="py-3 px-md text-right">
+<button class="text-on-surface-variant hover:text-error transition-colors opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-surface-container-low" title="Invalidate Entry">
+<span class="material-symbols-outlined text-[18px]">delete</span>
+</button>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="hover:bg-surface-container-highest transition-colors group">
+<td class="py-3 px-md">
+<div class="font-mono-md text-mono-md text-on-surface truncate max-w-md" title="Summarize the key points from this financial report focusing on Q3 revenue growth and operational costs.">
+                                    Summarize the key points from this financia...
+                                </div>
+</td>
+<td class="py-3 px-md">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-mono-md bg-primary/10 text-primary border border-primary/20">
+                                    0.88
+                                </span>
+</td>
+<td class="py-3 px-md font-mono-md text-mono-md text-on-surface">845</td>
+<td class="py-3 px-md font-body-sm text-body-sm text-on-surface-variant">15 mins ago</td>
+<td class="py-3 px-md text-right">
+<button class="text-on-surface-variant hover:text-error transition-colors opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-surface-container-low" title="Invalidate Entry">
+<span class="material-symbols-outlined text-[18px]">delete</span>
+</button>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="hover:bg-surface-container-highest transition-colors group">
+<td class="py-3 px-md">
+<div class="font-mono-md text-mono-md text-on-surface truncate max-w-md" title="Write a Python script to parse a CSV file and extract rows where the 'status' column is 'active'.">
+                                    Write a Python script to parse a CSV file a...
+                                </div>
+</td>
+<td class="py-3 px-md">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-mono-md bg-surface-variant text-on-surface-variant border border-outline-variant/50">
+                                    0.98
+                                </span>
+</td>
+<td class="py-3 px-md font-mono-md text-mono-md text-on-surface">320</td>
+<td class="py-3 px-md font-body-sm text-body-sm text-on-surface-variant">1 hour ago</td>
+<td class="py-3 px-md text-right">
+<button class="text-on-surface-variant hover:text-error transition-colors opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-surface-container-low" title="Invalidate Entry">
+<span class="material-symbols-outlined text-[18px]">delete</span>
+</button>
+</td>
+</tr>
+<!-- Row 4 -->
+<tr class="hover:bg-surface-container-highest transition-colors group">
+<td class="py-3 px-md">
+<div class="font-mono-md text-mono-md text-on-surface truncate max-w-md" title="Generate a JSON schema for a user profile containing id, name, email, and preferences.">
+                                    Generate a JSON schema for a user profile c...
+                                </div>
+</td>
+<td class="py-3 px-md">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-mono-md bg-surface-variant text-on-surface-variant border border-outline-variant/50">
+                                    0.95
+                                </span>
+</td>
+<td class="py-3 px-md font-mono-md text-mono-md text-on-surface">215</td>
+<td class="py-3 px-md font-body-sm text-body-sm text-on-surface-variant">3 hours ago</td>
+<td class="py-3 px-md text-right">
+<button class="text-on-surface-variant hover:text-error transition-colors opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-surface-container-low" title="Invalidate Entry">
+<span class="material-symbols-outlined text-[18px]">delete</span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Pagination Footer -->
+<div class="p-md border-t border-outline-variant flex justify-between items-center bg-surface-container-lowest">
+<span class="font-body-sm text-body-sm text-on-surface-variant">Showing 1 to 4 of 12,450 entries</span>
+<div class="flex gap-1">
+<button class="px-3 py-1 rounded bg-surface border border-outline-variant text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-body-sm text-body-sm disabled:opacity-50" disabled="">Prev</button>
+<button class="px-3 py-1 rounded bg-primary-container border border-primary text-on-primary-container font-body-sm text-body-sm font-medium">1</button>
+<button class="px-3 py-1 rounded bg-surface border border-outline-variant text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-body-sm text-body-sm">2</button>
+<button class="px-3 py-1 rounded bg-surface border border-outline-variant text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-body-sm text-body-sm">3</button>
+<button class="px-3 py-1 rounded bg-surface border border-outline-variant text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-body-sm text-body-sm">Next</button>
+</div>
+</div>
+</div>
+</main>
+</body></html>

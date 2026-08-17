@@ -1,0 +1,23 @@
+.env
+.env.local
+.venv
+venv
+__pycache__/
+*.py[cod]
+*.egg-info/
+.DS_Store
+.idea/
+.vscode/
+
+# Frontend
+app/node_modules/
+app/.next/
+app/out/
+app/.env.local
+
+# Backend
+backend/.venv/
+backend/__pycache__/
+
+# Design source zips (keep screens)
+design_assets/zips/

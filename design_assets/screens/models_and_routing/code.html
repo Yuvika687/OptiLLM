@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>OptiLLM - Models &amp; Routing</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&amp;family=Geist+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "on-tertiary-fixed-variant": "#653e00",
+                      "secondary": "#4edea3",
+                      "surface-container-high": "#232a34",
+                      "tertiary-fixed": "#ffddb8",
+                      "on-secondary-container": "#00311f",
+                      "on-error": "#690005",
+                      "surface": "#0d141d",
+                      "on-primary-container": "#00285d",
+                      "surface-dim": "#0d141d",
+                      "on-surface": "#dce3f0",
+                      "on-secondary-fixed": "#002113",
+                      "surface-variant": "#2e353f",
+                      "primary-fixed": "#d8e2ff",
+                      "error": "#ffb4ab",
+                      "inverse-surface": "#dce3f0",
+                      "surface-tint": "#adc6ff",
+                      "inverse-on-surface": "#2a313b",
+                      "on-primary-fixed": "#001a42",
+                      "primary-fixed-dim": "#adc6ff",
+                      "surface-container-low": "#151c25",
+                      "inverse-primary": "#005ac2",
+                      "on-secondary": "#003824",
+                      "outline": "#8c909f",
+                      "error-container": "#93000a",
+                      "tertiary-fixed-dim": "#ffb95f",
+                      "surface-bright": "#333a44",
+                      "on-primary-fixed-variant": "#004395",
+                      "tertiary": "#ffb95f",
+                      "on-surface-variant": "#c2c6d6",
+                      "on-error-container": "#ffdad6",
+                      "surface-container-highest": "#2e353f",
+                      "on-tertiary": "#472a00",
+                      "primary-container": "#4d8eff",
+                      "outline-variant": "#424754",
+                      "secondary-container": "#00a572",
+                      "on-background": "#dce3f0",
+                      "on-primary": "#002e6a",
+                      "primary": "#adc6ff",
+                      "tertiary-container": "#ca8100",
+                      "surface-container-lowest": "#080f17",
+                      "surface-container": "#192029",
+                      "on-tertiary-container": "#3e2400",
+                      "background": "#0d141d",
+                      "on-secondary-fixed-variant": "#005236",
+                      "on-tertiary-fixed": "#2a1700",
+                      "secondary-fixed": "#6ffbbe",
+                      "secondary-fixed-dim": "#4edea3"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "2xl": "48px",
+                      "lg": "24px",
+                      "sm": "8px",
+                      "md": "16px",
+                      "xs": "4px",
+                      "gutter": "20px",
+                      "xl": "32px",
+                      "3xl": "64px",
+                      "base": "4px",
+                      "container-max": "1440px"
+              },
+              "fontFamily": {
+                      "body-lg": ["Geist Sans"],
+                      "display-lg": ["Geist Sans"],
+                      "label-caps": ["Geist Sans"],
+                      "headline-lg": ["Geist Sans"],
+                      "body-md": ["Geist Sans"],
+                      "headline-md": ["Geist Sans"],
+                      "body-sm": ["Geist Sans"],
+                      "mono-md": ["Geist Mono"]
+              },
+              "fontSize": {
+                      "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                      "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                      "label-caps": ["11px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                      "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                      "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                      "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "500"}],
+                      "body-sm": ["13px", {"lineHeight": "18px", "fontWeight": "400"}],
+                      "mono-md": ["13px", {"lineHeight": "20px", "fontWeight": "400"}]
+              }
+            }
+          }
+        }
+    </script>
+<style type="text/tailwindcss">
+        @layer utilities {
+            .glass-panel {
+                @apply bg-surface-container-low/80 backdrop-blur-md border border-outline-variant/50;
+            }
+            .glass-card {
+                @apply bg-surface-container/90 backdrop-blur-sm border border-outline-variant/30 relative overflow-hidden;
+            }
+            .glass-card::before {
+                content: '';
+                @apply absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-white/10 to-transparent;
+            }
+            .primary-btn {
+                @apply bg-gradient-to-b from-primary to-primary/80 text-on-primary font-medium px-4 py-2 rounded shadow-sm border-t border-white/20 hover:opacity-90 transition-opacity;
+            }
+            .ghost-btn {
+                @apply bg-transparent text-primary border border-white/10 px-4 py-2 rounded hover:bg-white/5 transition-colors;
+            }
+            .glow-bg {
+                background: radial-gradient(circle at top right, rgba(173, 198, 255, 0.05) 0%, transparent 60%);
+            }
+            .hide-scrollbar::-webkit-scrollbar {
+                display: none;
+            }
+            .hide-scrollbar {
+                -ms-overflow-style: none;
+                scrollbar-width: none;
+            }
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md min-h-screen overflow-x-hidden flex">
+<!-- SideNavBar -->
+<nav class="hidden md:flex bg-surface dark:bg-surface font-body-md text-body-md fixed left-0 top-0 h-screen w-64 border-r border-outline-variant flex-col py-lg z-50">
+<div class="px-md mb-8 flex items-center gap-3">
+<div class="w-8 h-8 rounded bg-primary/20 flex items-center justify-center border border-primary/30 text-primary">
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">hexagon</span>
+</div>
+<div>
+<div class="font-headline-md text-headline-md font-bold text-primary tracking-tight">OptiLLM</div>
+<div class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">AI Gateway</div>
+</div>
+</div>
+<div class="flex-1 flex flex-col gap-1 px-sm">
+<a class="flex items-center gap-3 px-3 py-2.5 rounded text-on-surface-variant dark:text-on-surface-variant hover:text-on-surface hover:bg-surface-container-highest transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span>Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded text-on-surface-variant dark:text-on-surface-variant hover:text-on-surface hover:bg-surface-container-highest transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">science</span>
+<span>Playground</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded text-on-surface-variant dark:text-on-surface-variant hover:text-on-surface hover:bg-surface-container-highest transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">history</span>
+<span>Requests</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded text-on-surface-variant dark:text-on-surface-variant hover:text-on-surface hover:bg-surface-container-highest transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">database</span>
+<span>Cache</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded text-primary dark:text-primary font-bold border-l-2 border-primary bg-primary-container/10 transition-colors duration-200" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">route</span>
+<span>Models &amp; Routing</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded text-on-surface-variant dark:text-on-surface-variant hover:text-on-surface hover:bg-surface-container-highest transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">description</span>
+<span>Documents</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded text-on-surface-variant dark:text-on-surface-variant hover:text-on-surface hover:bg-surface-container-highest transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">analytics</span>
+<span>Analytics</span>
+</a>
+</div>
+<div class="px-sm mt-auto">
+<a class="flex items-center gap-3 px-3 py-2.5 rounded text-on-surface-variant dark:text-on-surface-variant hover:text-on-surface hover:bg-surface-container-highest transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span>Settings</span>
+</a>
+</div>
+</nav>
+<!-- TopNavBar -->
+<header class="hidden md:flex bg-surface/80 backdrop-blur-xl font-body-md text-body-md fixed top-0 right-0 left-64 h-16 border-b border-outline-variant justify-between items-center px-lg w-[calc(100%-256px)] z-40">
+<div class="flex items-center gap-6">
+<div class="flex gap-4">
+<a class="text-primary font-bold border-b-2 border-primary pb-1 translate-y-[2px]" href="#">Production</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors pb-1 translate-y-[2px]" href="#">Staging</a>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="relative group">
+<input class="bg-surface-container-highest border border-outline-variant rounded-full py-1.5 pl-9 pr-4 text-body-sm text-on-surface placeholder-on-surface-variant focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary w-48 transition-all group-hover:w-64" placeholder="Search..." type="text"/>
+<span class="material-symbols-outlined absolute left-3 top-2 text-on-surface-variant text-[18px]">search</span>
+</div>
+<button class="text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">help</span>
+</button>
+<div class="w-8 h-8 rounded-full bg-surface-container-highest border border-outline-variant overflow-hidden cursor-pointer hover:border-primary transition-colors">
+<img alt="User Avatar" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDNlE2Ton8vTx2Iw9B3EUS6ju0SvTplI8bNI1plXkk-a2RtTpA9VKuI4b1MmlP606khEE99JgU0ljX6pPtLyDK6BKibV3OBMzcls5RzQ2Sgh2VVNOjdAG1BijK5yki_ebHPD7be_CMFf1d6MAj4WsFFr7frFcB_2v0QH_Qgs_RVENadG5ftDDV8fK7BzNaQEqhVym4yAwEeOJKl6cAXkiVtiVBjGFq8MgwFHfI3Q6JxLCCYh_6azHleXIqBug4b61c-UTQMKCk6j3am"/>
+</div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="flex-1 ml-0 md:ml-64 mt-0 md:mt-16 p-md md:p-xl w-full max-w-[1440px] mx-auto min-h-screen">
+<!-- Page Header -->
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-lg">
+<div>
+<h1 class="font-headline-lg text-headline-lg font-bold text-on-background tracking-tight mb-1">Routing Rules</h1>
+<p class="text-on-surface-variant font-body-md">Configure dynamic dispatch rules for optimal cost and performance.</p>
+</div>
+<div class="flex items-center gap-3">
+<div class="flex items-center gap-2 bg-surface-container rounded-full px-3 py-1.5 border border-outline-variant/30">
+<div class="w-8 h-4 bg-surface-container-highest rounded-full relative cursor-not-allowed opacity-50">
+<div class="w-3 h-3 bg-on-surface-variant rounded-full absolute left-0.5 top-0.5"></div>
+</div>
+<span class="text-body-sm text-on-surface-variant font-medium">Adaptive Mode</span>
+<span class="font-label-caps text-label-caps bg-primary/10 text-primary px-1.5 py-0.5 rounded text-[10px]">COMING SOON</span>
+</div>
+<button class="primary-btn flex items-center gap-2 text-sm">
+<span class="material-symbols-outlined text-[18px]">add</span>
+                    New Rule
+                </button>
+</div>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+<!-- Left Column: Visual Routing Rules Editor (Bento Grid) -->
+<div class="lg:col-span-8 flex flex-col gap-4">
+<div class="flex items-center justify-between mb-2">
+<h2 class="font-headline-md text-headline-md text-on-surface">Execution Order</h2>
+<span class="font-mono-md text-mono-md text-on-surface-variant">Top-down evaluation</span>
+</div>
+<!-- Rule Cards -->
+<div class="flex flex-col gap-3" id="sortable-rules">
+<!-- Rule 1: Low Complexity -->
+<div class="glass-card rounded-xl p-0 flex items-stretch group hover:border-primary/50 transition-colors cursor-grab active:cursor-grabbing">
+<div class="w-10 bg-surface-container-highest/50 flex flex-col items-center justify-center border-r border-outline-variant/30 text-on-surface-variant group-hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[20px]">drag_indicator</span>
+<span class="font-mono-md text-[10px] mt-1">01</span>
+</div>
+<div class="flex-1 p-md flex items-center justify-between gap-4">
+<div class="flex items-center gap-4 flex-1">
+<div class="w-8 h-8 rounded bg-secondary/10 flex items-center justify-center text-secondary border border-secondary/20">
+<span class="material-symbols-outlined text-[18px]">speed</span>
+</div>
+<div class="flex-1">
+<div class="flex items-center gap-2">
+<span class="font-body-md font-medium text-on-surface">IF Task is</span>
+<span class="bg-surface-container-highest px-2 py-0.5 rounded text-body-sm font-medium border border-outline-variant/50">"Low Complexity"</span>
+</div>
+<div class="text-body-sm text-on-surface-variant mt-1 line-clamp-1">Based on token count &amp; semantic density</div>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-outline-variant">arrow_right_alt</span>
+<div class="bg-primary/10 border border-primary/20 px-3 py-1.5 rounded flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-primary animate-pulse"></div>
+<span class="font-mono-md text-mono-md text-primary font-medium">GPT-4o-mini</span>
+</div>
+</div>
+<button class="text-on-surface-variant hover:text-on-surface ml-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-[20px]">more_vert</span>
+</button>
+</div>
+</div>
+<!-- Rule 2: Coding Task -->
+<div class="glass-card rounded-xl p-0 flex items-stretch group hover:border-primary/50 transition-colors cursor-grab active:cursor-grabbing">
+<div class="w-10 bg-surface-container-highest/50 flex flex-col items-center justify-center border-r border-outline-variant/30 text-on-surface-variant group-hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[20px]">drag_indicator</span>
+<span class="font-mono-md text-[10px] mt-1">02</span>
+</div>
+<div class="flex-1 p-md flex items-center justify-between gap-4">
+<div class="flex items-center gap-4 flex-1">
+<div class="w-8 h-8 rounded bg-tertiary/10 flex items-center justify-center text-tertiary border border-tertiary/20">
+<span class="material-symbols-outlined text-[18px]">code</span>
+</div>
+<div class="flex-1">
+<div class="flex items-center gap-2">
+<span class="font-body-md font-medium text-on-surface">IF Intent matches</span>
+<span class="bg-surface-container-highest px-2 py-0.5 rounded text-body-sm font-medium border border-outline-variant/50">"Coding Task"</span>
+</div>
+<div class="text-body-sm text-on-surface-variant mt-1 line-clamp-1">Regex match or AST presence detected</div>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-outline-variant">arrow_right_alt</span>
+<div class="bg-tertiary/10 border border-tertiary/20 px-3 py-1.5 rounded flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-tertiary"></div>
+<span class="font-mono-md text-mono-md text-tertiary font-medium">Claude 3.5 Sonnet</span>
+</div>
+</div>
+<button class="text-on-surface-variant hover:text-on-surface ml-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-[20px]">more_vert</span>
+</button>
+</div>
+</div>
+<!-- Rule 3: Reasoning -->
+<div class="glass-card rounded-xl p-0 flex items-stretch group hover:border-primary/50 transition-colors cursor-grab active:cursor-grabbing">
+<div class="w-10 bg-surface-container-highest/50 flex flex-col items-center justify-center border-r border-outline-variant/30 text-on-surface-variant group-hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[20px]">drag_indicator</span>
+<span class="font-mono-md text-[10px] mt-1">03</span>
+</div>
+<div class="flex-1 p-md flex items-center justify-between gap-4">
+<div class="flex items-center gap-4 flex-1">
+<div class="w-8 h-8 rounded bg-error/10 flex items-center justify-center text-error border border-error/20">
+<span class="material-symbols-outlined text-[18px]">psychology</span>
+</div>
+<div class="flex-1">
+<div class="flex items-center gap-2">
+<span class="font-body-md font-medium text-on-surface">IF Tags contain</span>
+<span class="bg-surface-container-highest px-2 py-0.5 rounded text-body-sm font-medium border border-outline-variant/50">"Reasoning"</span>
+</div>
+<div class="text-body-sm text-on-surface-variant mt-1 line-clamp-1">Complex logic, math, or multi-step deduction</div>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-outline-variant">arrow_right_alt</span>
+<div class="bg-error/10 border border-error/20 px-3 py-1.5 rounded flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-error"></div>
+<span class="font-mono-md text-mono-md text-error font-medium">GPT-4o</span>
+</div>
+</div>
+<button class="text-on-surface-variant hover:text-on-surface ml-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-[20px]">more_vert</span>
+</button>
+</div>
+</div>
+<!-- Rule 4: Summarization -->
+<div class="glass-card rounded-xl p-0 flex items-stretch group hover:border-primary/50 transition-colors cursor-grab active:cursor-grabbing">
+<div class="w-10 bg-surface-container-highest/50 flex flex-col items-center justify-center border-r border-outline-variant/30 text-on-surface-variant group-hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[20px]">drag_indicator</span>
+<span class="font-mono-md text-[10px] mt-1">04</span>
+</div>
+<div class="flex-1 p-md flex items-center justify-between gap-4">
+<div class="flex items-center gap-4 flex-1">
+<div class="w-8 h-8 rounded bg-primary-fixed/10 flex items-center justify-center text-primary-fixed border border-primary-fixed/20">
+<span class="material-symbols-outlined text-[18px]">short_text</span>
+</div>
+<div class="flex-1">
+<div class="flex items-center gap-2">
+<span class="font-body-md font-medium text-on-surface">IF Task is</span>
+<span class="bg-surface-container-highest px-2 py-0.5 rounded text-body-sm font-medium border border-outline-variant/50">"Summarization"</span>
+</div>
+<div class="text-body-sm text-on-surface-variant mt-1 line-clamp-1">Context window &gt; 32k tokens</div>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-outline-variant">arrow_right_alt</span>
+<div class="bg-primary-fixed/10 border border-primary-fixed/20 px-3 py-1.5 rounded flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-primary-fixed"></div>
+<span class="font-mono-md text-mono-md text-primary-fixed font-medium">Gemini 1.5 Flash</span>
+</div>
+</div>
+<button class="text-on-surface-variant hover:text-on-surface ml-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-[20px]">more_vert</span>
+</button>
+</div>
+</div>
+<!-- Default Fallback -->
+<div class="border border-dashed border-outline-variant/50 rounded-xl p-md flex items-center justify-between mt-2 bg-surface-container-lowest/50">
+<div class="flex items-center gap-4">
+<div class="w-8 h-8 rounded bg-surface-container-highest flex items-center justify-center text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px]">call_split</span>
+</div>
+<div>
+<div class="font-body-md font-medium text-on-surface">Default Fallback</div>
+<div class="text-body-sm text-on-surface-variant">If no rules match</div>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-outline-variant">arrow_right_alt</span>
+<div class="bg-surface-container-highest border border-outline-variant px-3 py-1.5 rounded flex items-center gap-2">
+<span class="font-mono-md text-mono-md text-on-surface font-medium">GPT-4o-mini</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Column: Provider Status -->
+<div class="lg:col-span-4 flex flex-col gap-4">
+<div class="glass-card rounded-xl glow-bg h-full flex flex-col">
+<div class="p-md border-b border-outline-variant/30 flex items-center justify-between">
+<h2 class="font-headline-md text-body-lg font-medium text-on-surface flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[20px]">network_ping</span>
+                            Provider Status
+                        </h2>
+<span class="relative flex h-2 w-2">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-secondary opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2 w-2 bg-secondary"></span>
+</span>
+</div>
+<div class="p-md flex-1 overflow-hidden">
+<!-- Table Header -->
+<div class="grid grid-cols-12 gap-2 text-label-caps font-label-caps text-on-surface-variant mb-3 px-2">
+<div class="col-span-5">PROVIDER</div>
+<div class="col-span-3 text-right">LATENCY</div>
+<div class="col-span-4 text-right">COST/1K</div>
+</div>
+<!-- Data Rows -->
+<div class="flex flex-col gap-1">
+<!-- OpenAI -->
+<div class="grid grid-cols-12 gap-2 items-center py-2 px-2 hover:bg-surface-container-highest rounded transition-colors group">
+<div class="col-span-5 flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-secondary"></div>
+<span class="font-body-sm font-medium text-on-surface">OpenAI</span>
+</div>
+<div class="col-span-3 text-right font-mono-md text-mono-md text-on-surface-variant">
+                                    240<span class="text-[10px]">ms</span>
+</div>
+<div class="col-span-4 text-right font-mono-md text-mono-md text-on-surface-variant">
+                                    $0.015
+                                </div>
+</div>
+<!-- Anthropic -->
+<div class="grid grid-cols-12 gap-2 items-center py-2 px-2 hover:bg-surface-container-highest rounded transition-colors group">
+<div class="col-span-5 flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-secondary"></div>
+<span class="font-body-sm font-medium text-on-surface">Anthropic</span>
+</div>
+<div class="col-span-3 text-right font-mono-md text-mono-md text-on-surface-variant">
+                                    315<span class="text-[10px]">ms</span>
+</div>
+<div class="col-span-4 text-right font-mono-md text-mono-md text-on-surface-variant">
+                                    $0.030
+                                </div>
+</div>
+<!-- Google -->
+<div class="grid grid-cols-12 gap-2 items-center py-2 px-2 hover:bg-surface-container-highest rounded transition-colors group">
+<div class="col-span-5 flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-secondary"></div>
+<span class="font-body-sm font-medium text-on-surface">Google</span>
+</div>
+<div class="col-span-3 text-right font-mono-md text-mono-md text-on-surface-variant">
+                                    180<span class="text-[10px]">ms</span>
+</div>
+<div class="col-span-4 text-right font-mono-md text-mono-md text-on-surface-variant">
+                                    $0.007
+                                </div>
+</div>
+<!-- Local -->
+<div class="grid grid-cols-12 gap-2 items-center py-2 px-2 hover:bg-surface-container-highest rounded transition-colors group">
+<div class="col-span-5 flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-tertiary"></div>
+<span class="font-body-sm font-medium text-on-surface">Local (vLLM)</span>
+</div>
+<div class="col-span-3 text-right font-mono-md text-mono-md text-tertiary">
+                                    850<span class="text-[10px]">ms</span>
+</div>
+<div class="col-span-4 text-right font-mono-md text-mono-md text-on-surface-variant">
+                                    $0.000
+                                </div>
+</div>
+</div>
+<!-- Sparkline area placeholder -->
+<div class="mt-6 border-t border-outline-variant/30 pt-4">
+<div class="flex justify-between items-center mb-2">
+<span class="font-label-caps text-label-caps text-on-surface-variant">ROUTING DISTRIBUTION (24H)</span>
+</div>
+<div class="h-16 w-full flex items-end gap-1 px-1">
+<!-- Fake sparkline bars -->
+<div class="w-full bg-primary/20 h-[30%] rounded-t-sm hover:bg-primary/40 transition-colors"></div>
+<div class="w-full bg-primary/20 h-[45%] rounded-t-sm hover:bg-primary/40 transition-colors"></div>
+<div class="w-full bg-primary/20 h-[20%] rounded-t-sm hover:bg-primary/40 transition-colors"></div>
+<div class="w-full bg-primary/40 h-[60%] rounded-t-sm hover:bg-primary/60 transition-colors"></div>
+<div class="w-full bg-primary/40 h-[75%] rounded-t-sm hover:bg-primary/60 transition-colors"></div>
+<div class="w-full bg-primary/60 h-[90%] rounded-t-sm hover:bg-primary/80 transition-colors"></div>
+<div class="w-full bg-primary h-[100%] rounded-t-sm shadow-[0_0_8px_rgba(173,198,255,0.4)]"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</body></html>

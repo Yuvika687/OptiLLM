@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>OptiLLM - Requests Logs</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@100..900&amp;family=Geist:wght@100..900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "on-tertiary-fixed-variant": "#653e00",
+                      "secondary": "#4edea3",
+                      "surface-container-high": "#232a34",
+                      "tertiary-fixed": "#ffddb8",
+                      "on-secondary-container": "#00311f",
+                      "on-error": "#690005",
+                      "surface": "#0d141d",
+                      "on-primary-container": "#00285d",
+                      "surface-dim": "#0d141d",
+                      "on-surface": "#dce3f0",
+                      "on-secondary-fixed": "#002113",
+                      "surface-variant": "#2e353f",
+                      "primary-fixed": "#d8e2ff",
+                      "error": "#ffb4ab",
+                      "inverse-surface": "#dce3f0",
+                      "surface-tint": "#adc6ff",
+                      "inverse-on-surface": "#2a313b",
+                      "on-primary-fixed": "#001a42",
+                      "primary-fixed-dim": "#adc6ff",
+                      "surface-container-low": "#151c25",
+                      "inverse-primary": "#005ac2",
+                      "on-secondary": "#003824",
+                      "outline": "#8c909f",
+                      "error-container": "#93000a",
+                      "tertiary-fixed-dim": "#ffb95f",
+                      "surface-bright": "#333a44",
+                      "on-primary-fixed-variant": "#004395",
+                      "tertiary": "#ffb95f",
+                      "on-surface-variant": "#c2c6d6",
+                      "on-error-container": "#ffdad6",
+                      "surface-container-highest": "#2e353f",
+                      "on-tertiary": "#472a00",
+                      "primary-container": "#4d8eff",
+                      "outline-variant": "#424754",
+                      "secondary-container": "#00a572",
+                      "on-background": "#dce3f0",
+                      "on-primary": "#002e6a",
+                      "primary": "#adc6ff",
+                      "tertiary-container": "#ca8100",
+                      "surface-container-lowest": "#080f17",
+                      "surface-container": "#192029",
+                      "on-tertiary-container": "#3e2400",
+                      "background": "#0d141d",
+                      "on-secondary-fixed-variant": "#005236",
+                      "on-tertiary-fixed": "#2a1700",
+                      "secondary-fixed": "#6ffbbe",
+                      "secondary-fixed-dim": "#4edea3"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "2xl": "48px",
+                      "lg": "24px",
+                      "sm": "8px",
+                      "md": "16px",
+                      "xs": "4px",
+                      "gutter": "20px",
+                      "xl": "32px",
+                      "3xl": "64px",
+                      "base": "4px",
+                      "container-max": "1440px"
+              },
+              "fontFamily": {
+                      "body-lg": ["Geist", "sans-serif"],
+                      "display-lg": ["Geist", "sans-serif"],
+                      "label-caps": ["Geist", "sans-serif"],
+                      "headline-lg": ["Geist", "sans-serif"],
+                      "body-md": ["Geist", "sans-serif"],
+                      "headline-md": ["Geist", "sans-serif"],
+                      "body-sm": ["Geist", "sans-serif"],
+                      "mono-md": ["Geist Mono", "monospace"]
+              },
+              "fontSize": {
+                      "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                      "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                      "label-caps": ["11px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                      "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                      "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                      "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "500"}],
+                      "body-sm": ["13px", {"lineHeight": "18px", "fontWeight": "400"}],
+                      "mono-md": ["13px", {"lineHeight": "20px", "fontWeight": "400"}]
+              }
+            }
+          }
+        }
+      </script>
+<style>
+        body { background-color: theme('colors.background'); color: theme('colors.on-background'); }
+        /* Custom scrollbar for dense tables */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: theme('colors.surface-container'); }
+        ::-webkit-scrollbar-thumb { background: theme('colors.surface-variant'); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: theme('colors.outline'); }
+        
+        /* Glassmorphism utilities */
+        .glass-panel {
+            background: rgba(17, 24, 39, 0.7);
+            backdrop-filter: blur(20px);
+            border: 1px solid theme('colors.outline-variant');
+        }
+    </style>
+</head>
+<body class="font-body-md text-body-md overflow-hidden bg-background selection:bg-primary-container selection:text-on-primary-container">
+<!-- SideNavBar (Shared Component) -->
+<nav class="hidden md:flex flex-col h-full py-lg fixed left-0 top-0 h-screen w-64 border-r border-outline-variant bg-surface dark:bg-surface z-50">
+<!-- Brand Header -->
+<div class="px-md mb-xl flex items-center gap-sm">
+<div class="w-8 h-8 rounded bg-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-on-primary" style="font-variation-settings: 'FILL' 1;">dataset</span>
+</div>
+<div>
+<h1 class="font-headline-md text-headline-md font-bold text-primary tracking-tight">OptiLLM</h1>
+<p class="font-label-caps text-label-caps text-on-surface-variant uppercase">AI Gateway</p>
+</div>
+</div>
+<!-- Navigation Links -->
+<ul class="flex-1 px-sm space-y-xs">
+<li>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant dark:text-on-surface-variant hover:text-on-surface hover:bg-surface-container-highest transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span>Dashboard</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant dark:text-on-surface-variant hover:text-on-surface hover:bg-surface-container-highest transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">science</span>
+<span>Playground</span>
+</a>
+</li>
+<li>
+<!-- ACTIVE NAV ITEM: Requests -->
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-primary dark:text-primary font-bold border-l-2 border-primary bg-primary-container/10" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">history</span>
+<span>Requests</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant dark:text-on-surface-variant hover:text-on-surface hover:bg-surface-container-highest transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">database</span>
+<span>Cache</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant dark:text-on-surface-variant hover:text-on-surface hover:bg-surface-container-highest transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">route</span>
+<span>Models &amp; Routing</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant dark:text-on-surface-variant hover:text-on-surface hover:bg-surface-container-highest transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">description</span>
+<span>Documents</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant dark:text-on-surface-variant hover:text-on-surface hover:bg-surface-container-highest transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">analytics</span>
+<span>Analytics</span>
+</a>
+</li>
+</ul>
+<div class="px-sm mt-auto">
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant dark:text-on-surface-variant hover:text-on-surface hover:bg-surface-container-highest transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span>Settings</span>
+</a>
+</div>
+</nav>
+<!-- TopNavBar (Shared Component) -->
+<header class="hidden md:flex justify-between items-center px-lg h-16 w-full fixed top-0 right-0 left-64 h-16 border-b border-outline-variant bg-surface/80 backdrop-blur-xl z-40" style="width: calc(100% - 256px);">
+<div class="flex items-center gap-xl h-full">
+<!-- Navigation Links (Environment) -->
+<div class="flex items-center gap-lg h-full">
+<a class="flex items-center h-full text-primary font-bold border-b-2 border-primary pb-1" href="#">Production</a>
+<a class="flex items-center h-full text-on-surface-variant hover:text-primary transition-colors" href="#">Staging</a>
+</div>
+</div>
+<div class="flex items-center gap-md">
+<!-- Trailing Icons -->
+<button class="p-xs text-on-surface-variant hover:text-primary transition-colors rounded-full hover:bg-surface-container-highest">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="p-xs text-on-surface-variant hover:text-primary transition-colors rounded-full hover:bg-surface-container-highest">
+<span class="material-symbols-outlined">help</span>
+</button>
+<div class="w-8 h-8 rounded-full overflow-hidden border border-outline-variant ml-sm cursor-pointer hover:border-primary transition-colors">
+<img alt="User Avatar" class="w-full h-full object-cover" data-alt="A professional headshot of a female DevOps engineer in a high-tech server room environment, softly lit with blue and teal ambient lighting, representing a sleek modern enterprise AI infrastructure identity." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDcGYg0IDWUy9tFhjf2lz_hKpGz6Oai_hyQfKQ6IiNxsj3mW4vcGqST0nSH-8eJ1o03KDxp0Pel6mA62k0wZt368iIUIc8O-jwp0tEVlNXvrUsGfrNUrMCam5uQik3tfgwIiucFnA5BvNKir9yrX_d1-f001k0x1XZPDFSp-rXukpJ424UAis1Mkerky6mtk3fw5n77mwQAa2Gy74JL52a844aOWDivgd5sqFEyJ1aTMMBXH5l3S0iz3XRAeBs4Prj90nIV4_qyd4we"/>
+</div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="md:ml-64 pt-16 h-screen flex flex-col bg-background">
+<!-- Page Header & Advanced Filters -->
+<div class="px-xl py-lg border-b border-surface-container shrink-0 bg-surface-container-lowest">
+<div class="flex justify-between items-center mb-md">
+<h2 class="font-headline-lg text-headline-lg text-on-surface tracking-tight">Request Logs</h2>
+<div class="flex gap-sm">
+<button class="flex items-center gap-xs px-md py-sm bg-surface-container border border-outline-variant rounded-lg text-on-surface font-body-sm hover:bg-surface-container-highest transition-colors">
+<span class="material-symbols-outlined text-sm">download</span>
+                        Export CSV
+                    </button>
+</div>
+</div>
+<!-- Filter Bar -->
+<div class="flex flex-wrap items-center gap-md bg-surface-container-low p-md rounded-lg border border-outline-variant">
+<!-- Date Range -->
+<div class="flex items-center gap-xs bg-surface border border-outline-variant rounded-md px-sm py-xs">
+<span class="material-symbols-outlined text-on-surface-variant text-sm">calendar_month</span>
+<span class="font-body-sm text-on-surface">Last 24 Hours</span>
+<span class="material-symbols-outlined text-on-surface-variant text-sm cursor-pointer hover:text-primary">arrow_drop_down</span>
+</div>
+<!-- Model Dropdown -->
+<div class="flex items-center gap-xs bg-surface border border-outline-variant rounded-md px-sm py-xs">
+<span class="material-symbols-outlined text-on-surface-variant text-sm">psychology</span>
+<span class="font-body-sm text-on-surface">All Models</span>
+<span class="material-symbols-outlined text-on-surface-variant text-sm cursor-pointer hover:text-primary">arrow_drop_down</span>
+</div>
+<!-- Cache Toggle -->
+<div class="flex items-center gap-xs bg-surface border border-outline-variant rounded-md px-sm py-xs">
+<span class="material-symbols-outlined text-on-surface-variant text-sm">database</span>
+<span class="font-body-sm text-on-surface">Cache: Any</span>
+<span class="material-symbols-outlined text-on-surface-variant text-sm cursor-pointer hover:text-primary">arrow_drop_down</span>
+</div>
+<!-- Intent Filter -->
+<div class="flex items-center gap-xs bg-surface border border-outline-variant rounded-md px-sm py-xs">
+<span class="material-symbols-outlined text-on-surface-variant text-sm">flag</span>
+<span class="font-body-sm text-on-surface">Intent: All</span>
+</div>
+<!-- Search -->
+<div class="flex-1 flex items-center min-w-[200px] gap-xs bg-surface border border-outline-variant rounded-md px-sm py-xs focus-within:border-primary focus-within:ring-1 focus-within:ring-primary">
+<span class="material-symbols-outlined text-on-surface-variant text-sm">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-on-surface font-body-sm w-full p-0 h-5 placeholder:text-on-surface-variant" placeholder="Search prompts or user IDs..." type="text"/>
+</div>
+</div>
+</div>
+<!-- Data Table Area -->
+<div class="flex-1 overflow-auto p-xl relative">
+<div class="bg-surface-container-low border border-outline-variant rounded-xl overflow-hidden shadow-sm relative">
+<!-- Subtle top glow for elevation -->
+<div class="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary-fixed/20 to-transparent"></div>
+<table class="w-full text-left border-collapse">
+<thead class="bg-surface-container border-b border-outline-variant font-label-caps text-label-caps text-on-surface-variant uppercase sticky top-0 z-10">
+<tr>
+<th class="px-md py-sm font-medium">Timestamp</th>
+<th class="px-md py-sm font-medium">User</th>
+<th class="px-md py-sm font-medium w-1/4">Original Prompt</th>
+<th class="px-md py-sm font-medium w-1/4">Optimized Prompt</th>
+<th class="px-md py-sm font-medium">Model</th>
+<th class="px-md py-sm font-medium text-right">Tokens</th>
+<th class="px-md py-sm font-medium text-right">Latency</th>
+<th class="px-md py-sm font-medium text-center">Status</th>
+<th class="px-md py-sm font-medium text-center">Action</th>
+</tr>
+</thead>
+<tbody class="font-body-sm text-on-surface divide-y divide-surface-variant">
+<!-- Row 1 -->
+<tr class="hover:bg-surface-container-highest transition-colors group cursor-pointer h-10">
+<td class="px-md py-sm font-mono-md text-on-surface-variant whitespace-nowrap">10:24:05.122</td>
+<td class="px-md py-sm">usr_892xjd</td>
+<td class="px-md py-sm truncate max-w-[200px] text-on-surface-variant">Translate the following JSON configuration file...</td>
+<td class="px-md py-sm truncate max-w-[200px]">System: Act as an expert translator. Input JSON:...</td>
+<td class="px-md py-sm">
+<span class="inline-flex items-center gap-xs px-2 py-0.5 rounded bg-surface-container border border-outline-variant text-on-surface-variant font-mono-md text-[11px]">
+                                    gpt-4-turbo
+                                </span>
+</td>
+<td class="px-md py-sm font-mono-md text-right">1,420</td>
+<td class="px-md py-sm font-mono-md text-right text-secondary">842ms</td>
+<td class="px-md py-sm text-center">
+<span class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-secondary/10 text-secondary">
+<span class="material-symbols-outlined text-[14px]">check</span>
+</span>
+</td>
+<td class="px-md py-sm text-center">
+<button class="text-primary hover:text-primary-fixed transition-colors opacity-0 group-hover:opacity-100 font-label-caps uppercase tracking-wider">Details</button>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="hover:bg-surface-container-highest transition-colors group cursor-pointer h-10">
+<td class="px-md py-sm font-mono-md text-on-surface-variant whitespace-nowrap">10:23:41.005</td>
+<td class="px-md py-sm">usr_441mlk</td>
+<td class="px-md py-sm truncate max-w-[200px] text-on-surface-variant">Write a python script to scrape data from...</td>
+<td class="px-md py-sm truncate max-w-[200px] text-on-surface-variant italic opacity-75">Cache Hit (No Optimization)</td>
+<td class="px-md py-sm">
+<span class="inline-flex items-center gap-xs px-2 py-0.5 rounded bg-surface-container border border-outline-variant text-on-surface-variant font-mono-md text-[11px]">
+                                    claude-3-sonnet
+                                </span>
+</td>
+<td class="px-md py-sm font-mono-md text-right">85</td>
+<td class="px-md py-sm font-mono-md text-right text-secondary">120ms</td>
+<td class="px-md py-sm text-center">
+<span class="inline-flex items-center justify-center px-2 py-0.5 rounded bg-tertiary/10 text-tertiary font-label-caps text-[10px] border border-tertiary/20">
+                                    CACHE
+                                </span>
+</td>
+<td class="px-md py-sm text-center">
+<button class="text-primary hover:text-primary-fixed transition-colors opacity-0 group-hover:opacity-100 font-label-caps uppercase tracking-wider">Details</button>
+</td>
+</tr>
+<!-- Row 3 (Error) -->
+<tr class="hover:bg-surface-container-highest transition-colors group cursor-pointer h-10 bg-error/5">
+<td class="px-md py-sm font-mono-md text-on-surface-variant whitespace-nowrap">10:21:15.992</td>
+<td class="px-md py-sm">sys_backend</td>
+<td class="px-md py-sm truncate max-w-[200px] text-on-surface-variant">Generate a summary of the massive text payload attached...</td>
+<td class="px-md py-sm truncate max-w-[200px] text-error opacity-80">Failed to optimize due to token limit...</td>
+<td class="px-md py-sm">
+<span class="inline-flex items-center gap-xs px-2 py-0.5 rounded bg-surface-container border border-outline-variant text-on-surface-variant font-mono-md text-[11px]">
+                                    gpt-3.5-turbo
+                                </span>
+</td>
+<td class="px-md py-sm font-mono-md text-right text-error">16,384</td>
+<td class="px-md py-sm font-mono-md text-right text-error">4,210ms</td>
+<td class="px-md py-sm text-center">
+<span class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-error/10 text-error">
+<span class="material-symbols-outlined text-[14px]">close</span>
+</span>
+</td>
+<td class="px-md py-sm text-center">
+<button class="text-error hover:text-error-container transition-colors opacity-100 font-label-caps uppercase tracking-wider">Review</button>
+</td>
+</tr>
+<!-- Row 4 -->
+<tr class="hover:bg-surface-container-highest transition-colors group cursor-pointer h-10">
+<td class="px-md py-sm font-mono-md text-on-surface-variant whitespace-nowrap">10:19:55.334</td>
+<td class="px-md py-sm">usr_772zqp</td>
+<td class="px-md py-sm truncate max-w-[200px] text-on-surface-variant">Explain quantum computing to a 5 year old.</td>
+<td class="px-md py-sm truncate max-w-[200px]">System: Use simple analogies. User: Explain quantum...</td>
+<td class="px-md py-sm">
+<span class="inline-flex items-center gap-xs px-2 py-0.5 rounded bg-surface-container border border-outline-variant text-on-surface-variant font-mono-md text-[11px]">
+                                    gpt-4-turbo
+                                </span>
+</td>
+<td class="px-md py-sm font-mono-md text-right">312</td>
+<td class="px-md py-sm font-mono-md text-right text-secondary">650ms</td>
+<td class="px-md py-sm text-center">
+<span class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-secondary/10 text-secondary">
+<span class="material-symbols-outlined text-[14px]">check</span>
+</span>
+</td>
+<td class="px-md py-sm text-center">
+<button class="text-primary hover:text-primary-fixed transition-colors opacity-0 group-hover:opacity-100 font-label-caps uppercase tracking-wider">Details</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Pagination -->
+<div class="flex items-center justify-between mt-md px-sm">
+<span class="font-body-sm text-on-surface-variant">Showing 1 to 4 of 1,024 requests</span>
+<div class="flex gap-xs">
+<button class="w-8 h-8 flex items-center justify-center rounded border border-outline-variant bg-surface-container-low text-on-surface-variant hover:bg-surface-container hover:text-on-surface disabled:opacity-50" disabled="">
+<span class="material-symbols-outlined text-sm">chevron_left</span>
+</button>
+<button class="w-8 h-8 flex items-center justify-center rounded border border-outline-variant bg-surface-container-low text-on-surface-variant hover:bg-surface-container hover:text-on-surface">
+<span class="material-symbols-outlined text-sm">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+</main>
+<!-- Side Drawer (Hidden by default, structure for context) -->
+<!-- In a real app, JS would toggle 'translate-x-full' -->
+<aside class="fixed top-0 right-0 h-screen w-96 glass-panel z-50 transform translate-x-full transition-transform duration-300 flex flex-col shadow-2xl">
+<div class="flex items-center justify-between p-lg border-b border-outline-variant">
+<h3 class="font-headline-md text-headline-md text-on-surface">Request Details</h3>
+<button class="p-xs text-on-surface-variant hover:text-on-surface rounded-full hover:bg-surface-container">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+<div class="p-lg overflow-auto flex-1 space-y-lg">
+<!-- Details content would go here -->
+</div>
+</aside>
+</body></html>
