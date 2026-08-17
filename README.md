@@ -2,6 +2,14 @@
 
 Intelligent AI gateway that sits between your app and LLM providers. It cuts spend with semantic caching and cheap-vs-expensive model routing, and it shows you the receipts.
 
+**Live**
+
+- Dashboard: https://optillm.vercel.app
+- API: https://optillm-api.onrender.com/health
+- Source: https://github.com/Yuvika687/OptiLLM
+
+Set `OPENAI_API_KEY` on the Render service to enable new completions. Cache hits, routing metadata, request logs, analytics, documents, and API keys already work without it.
+
 **Why install this instead of calling OpenAI directly?**
 
 1. **Semantic cache** — similar prompts reuse a stored answer (cost $0, ~8ms).
