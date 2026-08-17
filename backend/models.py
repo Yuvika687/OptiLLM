@@ -12,6 +12,7 @@ from sqlalchemy import (
     JSON,
     String,
     Text,
+    func,
 )
 from sqlalchemy.orm import relationship
 
@@ -29,7 +30,7 @@ class ApiKey(Base):
     name = Column(String(128), nullable=False)
     key_prefix = Column(String(16), nullable=False, index=True)
     key_hash = Column(String(64), nullable=False, unique=True)
-    created_at = Column(DateTime(timezone=True), nullable=False, default=_utcnow)
+    created_at = Column(DateTime(timezone=True), nullable=False, default=_utcnow, server_default=func.now())
     last_used_at = Column(DateTime(timezone=True), nullable=True)
     revoked_at = Column(DateTime(timezone=True), nullable=True)
 
@@ -50,7 +51,7 @@ class CacheEntry(Base):
     cost_usd = Column(Float, nullable=False, default=0.0)
     hit_count = Column(Integer, nullable=False, default=0)
     last_similarity = Column(Float, nullable=True)
-    created_at = Column(DateTime(timezone=True), nullable=False, default=_utcnow)
+    created_at = Column(DateTime(timezone=True), nullable=False, default=_utcnow, server_default=func.now())
     last_hit_at = Column(DateTime(timezone=True), nullable=True)
 
     requests = relationship("Request", back_populates="cache_entry")
@@ -82,7 +83,7 @@ class Request(Base):
     embedding = Column(JSON, nullable=True)
     status = Column(String(32), nullable=False, default="success")
     error_message = Column(Text, nullable=True)
-    created_at = Column(DateTime(timezone=True), nullable=False, default=_utcnow)
+    created_at = Column(DateTime(timezone=True), nullable=False, default=_utcnow, server_default=func.now())
 
     api_key = relationship("ApiKey", back_populates="requests")
     cache_entry = relationship("CacheEntry", back_populates="requests")
@@ -96,7 +97,7 @@ class Document(Base):
     content_type = Column(String(128), nullable=False, default="application/pdf")
     size_bytes = Column(Integer, nullable=False, default=0)
     chunk_count = Column(Integer, nullable=False, default=0)
-    created_at = Column(DateTime(timezone=True), nullable=False, default=_utcnow)
+    created_at = Column(DateTime(timezone=True), nullable=False, default=_utcnow, server_default=func.now())
 
     chunks = relationship("DocumentChunk", back_populates="document", cascade="all, delete-orphan")
 

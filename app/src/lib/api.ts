@@ -10,7 +10,9 @@ import type {
 } from "./types";
 
 export const API_BASE =
-  process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+  typeof window === "undefined"
+    ? process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"
+    : "/gateway";
 
 const KEY_STORAGE = "optillm_api_key";
 
@@ -49,7 +51,25 @@ export async function api<T>(
     const key = getStoredApiKey();
     if (key) headers.set("X-API-Key", key);
   }
-  const res = await fetch(`${API_BASE}${path}`, { ...init, headers });
+  let res: Response | null = null;
+  let lastErr: unknown = null;
+  for (let attempt = 0; attempt < 3; attempt++) {
+    try {
+      res = await fetch(`${API_BASE}${path}`, { ...init, headers });
+      lastErr = null;
+      break;
+    } catch (err) {
+      lastErr = err;
+      await new Promise((r) => setTimeout(r, 1500 * (attempt + 1)));
+    }
+  }
+  if (!res) {
+    throw new Error(
+      lastErr instanceof Error
+        ? lastErr.message
+        : "Could not reach the OptiLLM API (Render may be waking up). Retry in 30s."
+    );
+  }
   if (!res.ok) {
     throw new Error(await parseError(res));
   }

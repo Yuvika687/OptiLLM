@@ -49,3 +49,12 @@ def ensure_schema() -> None:
         for name, col_type in _REQUEST_COLUMNS.items():
             if name not in existing:
                 conn.execute(text(f"ALTER TABLE requests ADD COLUMN {name} {col_type}"))
+        for table in ("requests", "cache_entries", "api_keys", "documents"):
+            try:
+                conn.execute(
+                    text(
+                        f"ALTER TABLE {table} ALTER COLUMN created_at SET DEFAULT NOW()"
+                    )
+                )
+            except Exception:
+                continue

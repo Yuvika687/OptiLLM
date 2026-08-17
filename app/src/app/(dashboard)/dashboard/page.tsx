@@ -14,6 +14,7 @@ export default function DashboardPage() {
   const [data, setData] = useState<AnalyticsOverview | null>(null);
   const [recent, setRecent] = useState<RequestRow[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let cancelled = false;
@@ -22,10 +23,12 @@ export default function DashboardPage() {
         if (cancelled) return;
         setData(overview);
         setRecent(reqs.items);
+        setLoading(false);
       })
       .catch((err: unknown) => {
         if (!cancelled) {
           setError(err instanceof Error ? err.message : "Failed to load");
+          setLoading(false);
         }
       });
     return () => {
@@ -45,6 +48,12 @@ export default function DashboardPage() {
           Live gateway metrics from Postgres — last 14 days.
         </p>
       </div>
+
+      {loading && (
+        <div className="text-sm text-on-surface-variant">
+          Loading live metrics from the gateway…
+        </div>
+      )}
 
       {error && (
         <div className="glass-panel rounded-xl p-4 text-sm text-error">{error}</div>
