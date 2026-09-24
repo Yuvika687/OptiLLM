@@ -1,132 +1,130 @@
-# OptiLLM
+<div align="center">
 
-Intelligent AI gateway that sits between your app and LLM providers. It cuts spend with semantic caching and cheap-vs-expensive model routing, and it shows you the receipts.
+<img src="https://capsule-render.vercel.app/api?type=waving&height=200&color=0:A78BFA,50:C084FC,100:F472B6&text=OptiLLM&fontColor=FFFFFF&fontSize=60&fontAlignY=38&desc=Spend%20less%20on%20LLMs.%20See%20exactly%20where%20every%20dollar%20goes.&descSize=18&descAlignY=62&animation=fadeIn" width="100%" alt="OptiLLM banner" />
 
-**Live**
+![Status](https://img.shields.io/badge/Status-In_Development-F472B6?style=for-the-badge&labelColor=1F1B2E)
+![FastAPI](https://img.shields.io/badge/FastAPI-backend-A78BFA?style=for-the-badge&logo=fastapi&logoColor=white&labelColor=1F1B2E)
+![Next.js](https://img.shields.io/badge/Next.js-16-F472B6?style=for-the-badge&logo=nextdotjs&logoColor=white&labelColor=1F1B2E)
+![Last commit](https://img.shields.io/github/last-commit/Yuvika687/OptiLLM?style=for-the-badge&color=A78BFA&labelColor=1F1B2E)
+![Stars](https://img.shields.io/github/stars/Yuvika687/OptiLLM?style=for-the-badge&color=F472B6&labelColor=1F1B2E)
 
-- Dashboard: https://optillm.vercel.app
-- API: https://optillm-api.onrender.com/health
-- Source: https://github.com/Yuvika687/OptiLLM
+**[Live dashboard](https://optillm.vercel.app)** · **[API health](https://optillm-api.onrender.com/health)**
 
-Set `OPENAI_API_KEY` on the Render service to enable new completions. Cache hits, routing metadata, request logs, analytics, documents, and API keys already work without it.
+</div>
 
-**Why install this instead of calling OpenAI directly?**
+## ✨ Overview
 
-1. **Semantic cache** — similar prompts reuse a stored answer (cost $0, ~8ms).
-2. **Model router** — short/simple prompts go to `gpt-4o-mini`; hard ones go to `gpt-4o`.
-3. **Prompt optimizer** — strips greetings and filler before embed/route/call.
-4. **Cost analytics** — actual spend vs a “everything hit gpt-4o” baseline.
-5. **API keys** — `/v1/chat` requires `X-API-Key`, so it behaves like installable middleware.
+Calling a frontier LLM for every request is expensive, and many requests are near-duplicates or simple enough for a smaller model. **OptiLLM** is a gateway that sits between an application and its LLM provider. It **optimizes the prompt**, **routes** it to a cheaper or stronger model based on estimated complexity, **reuses cached answers** for semantically similar prompts, and records every request so cost and behavior are visible in a dashboard.
 
-## Architecture
+> 🚧 **Work in progress.** The gateway, dashboard and API-key flow run end to end. Benchmarking against a direct-to-provider baseline is still to be done — no performance claims are made until that is measured.
 
+## 🧭 Architecture
+
+```mermaid
+flowchart LR
+    A[Client app / curl] -->|X-API-Key + JSON| B[FastAPI gateway]
+    D[Next.js dashboard] --> B
+    B --> C[Prompt optimizer]
+    C --> E{Semantic cache}
+    E -- hit --> R[Return cached answer]
+    E -- miss --> F{Complexity router}
+    F -- simple --> G[Small model]
+    F -- complex --> H[Large model]
+    G --> I[(PostgreSQL: requests, cache, keys, docs)]
+    H --> I
+    G -.fallback.-> J[Optional Anthropic]
+    H -.fallback.-> J
+    R --> I
 ```
-Browser (Next.js dashboard)          Your app / curl
-        |                                    |
-        |         X-API-Key + JSON           |
-        +----------------+-------------------+
-                         |
-                  FastAPI gateway
-                         |
-     +-----------+-------+--------+-----------+
-     |           |                |           |
-  Postgres    Embeddings      OpenAI      Optional
-  requests,    (local hashed   chat         Anthropic
-  cache,       n-grams, or     completions  fallback
-  api_keys,    OpenAI embed)
-  documents
-```
 
-- **Frontend:** Next.js 16 + React 19 + Tailwind 4 + Recharts (`app/`)
-- **Backend:** FastAPI + SQLAlchemy (`backend/`)
-- **Database:** Postgres 16 (`docker compose`)
+## 🔑 Key features
 
-## Local setup
+| | Feature | Notes |
+|---|---|---|
+| ✅ | Semantic cache | Similar prompts reuse a stored answer (default similarity threshold `0.92`) |
+| ✅ | Model router | Simple prompts → `gpt-4o-mini`, harder ones → `gpt-4o` (complexity threshold `0.50`) |
+| ✅ | Prompt optimizer | Strips greetings/filler before embed → route → call |
+| ✅ | Cost analytics | Actual spend vs an "everything on the large model" baseline |
+| ✅ | API keys | `/v1/chat` requires `X-API-Key` |
+| ✅ | Dashboard | Requests log, cache explorer, routing rules, documents, analytics |
+| 🔜 | Benchmarks vs direct calls | Not measured yet |
+| 🔜 | Auth on dashboard list endpoints | Currently intentionally open for the demo |
 
-### 1. Postgres
+## 🧰 Tech stack
+
+![Python](https://img.shields.io/badge/Python-1F1B2E?style=for-the-badge&logo=python&logoColor=A78BFA)
+![FastAPI](https://img.shields.io/badge/FastAPI-1F1B2E?style=for-the-badge&logo=fastapi&logoColor=F472B6)
+![SQLAlchemy](https://img.shields.io/badge/SQLAlchemy-1F1B2E?style=for-the-badge&logo=sqlalchemy&logoColor=8BE9FD)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-1F1B2E?style=for-the-badge&logo=postgresql&logoColor=A78BFA)
+![Next.js](https://img.shields.io/badge/Next.js-1F1B2E?style=for-the-badge&logo=nextdotjs&logoColor=F472B6)
+![Tailwind](https://img.shields.io/badge/Tailwind-1F1B2E?style=for-the-badge&logo=tailwindcss&logoColor=8BE9FD)
+![Docker](https://img.shields.io/badge/Docker-1F1B2E?style=for-the-badge&logo=docker&logoColor=A78BFA)
+
+## 📈 Benchmarks
+
+Benchmarks against direct provider calls (cache-hit latency, cost per 1k requests, cache hit rate, routing accuracy) are planned. No performance figures are claimed until they are measured.
+
+## 🚀 Installation & usage
 
 ```bash
+# 1. Postgres
 docker compose up -d
-```
 
-### 2. Backend
-
-```bash
+# 2. Backend
 cd backend
-python3 -m venv .venv
-source .venv/bin/activate
+python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
-cp ../.env.example ../.env
-# put a real OPENAI_API_KEY in ../.env
+cp ../.env.example ../.env          # add a real OPENAI_API_KEY
 uvicorn main:app --reload --port 8000
-```
 
-Health check: [http://localhost:8000/health](http://localhost:8000/health)
-
-### 3. Frontend
-
-```bash
+# 3. Frontend (new terminal)
 cd app
 npm install
 echo 'NEXT_PUBLIC_API_URL=http://localhost:8000' > .env.local
-npm run dev
+npm run dev                          # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) — it redirects to `/dashboard`.
-
-## Calling the gateway
-
 ```bash
-# create a key
-curl -s -X POST http://localhost:8000/v1/keys \
-  -H 'Content-Type: application/json' \
-  -d '{"name":"my-app"}'
+# create an API key, then call the gateway
+curl -s -X POST http://localhost:8000/v1/keys -H 'Content-Type: application/json' -d '{"name":"my-app"}'
 
-# chat (required header)
 curl -s -X POST http://localhost:8000/v1/chat \
-  -H 'Content-Type: application/json' \
-  -H 'X-API-Key: ollm_...' \
+  -H 'Content-Type: application/json' -H 'X-API-Key: ollm_...' \
   -d '{"messages":[{"role":"user","content":"Summarize TCP in one sentence."}]}'
 ```
 
-Playground creates a key automatically and stores it in `localStorage`.
+## 🗂️ Project structure
 
-## Core API
+```
+OptiLLM/
+├── app/                 # Next.js 16 dashboard (analytics, cache, requests, playground…)
+├── backend/             # FastAPI gateway (optimizer, router, cache, keys, documents)
+├── docker-compose.yml   # Postgres 16
+├── .env.example
+├── DESIGN.md
+└── README.md
+```
 
-| Method | Path | Auth | Purpose |
-|---|---|---|---|
-| GET | `/health` | no | Liveness + whether OpenAI is configured |
-| POST | `/v1/chat` | API key | Gateway: optimize → route → cache → LLM |
-| GET | `/v1/requests` | no | Request log |
-| GET | `/v1/analytics/overview` | no | Aggregates for the dashboard |
-| GET/DELETE | `/v1/cache` | no | Cache explorer |
-| GET/POST/DELETE | `/v1/keys` | no | Key management (demo-open) |
-| GET/POST/DELETE | `/v1/documents` | no | RAG ingest |
-| GET | `/v1/router` | no | Current routing rules |
+## 🗺️ Roadmap
 
-Dashboard list endpoints are intentionally open for this portfolio demo. The spend path (`/v1/chat`) is locked behind an API key.
+- [x] FastAPI gateway with API-key protected `/v1/chat`
+- [x] Semantic cache + model routing + prompt optimizer
+- [x] Dashboard (analytics, requests, cache, routing, documents, playground)
+- [x] Deployed demo (Vercel + Render)
+- [ ] Benchmark against direct provider calls and publish real numbers
+- [ ] Protect dashboard/list endpoints with auth
+- [ ] Add a LICENSE and tests
 
-## Environment
+## 🙏 Acknowledgements
 
-See `.env.example`. Important variables:
+OpenAI API, FastAPI, Next.js, Recharts.
 
-- `OPENAI_API_KEY` — required for new completions
-- `DATABASE_URL` — Postgres
-- `DEFAULT_SIMPLE_MODEL` / `DEFAULT_COMPLEX_MODEL`
-- `COMPLEXITY_THRESHOLD` (default `0.50`)
-- `CACHE_SIMILARITY_THRESHOLD` (default `0.92`)
-- `EMBEDDING_PROVIDER` — `local` (default) or `openai`
-- `ANTHROPIC_API_KEY` — optional last-resort fallback
-- `CORS_ORIGINS` — comma-separated; `*` for local
-- `NEXT_PUBLIC_API_URL` — frontend → API
+<div align="center">
 
-## Deploy
+### 👩‍💻 Author
 
-- **API + Postgres:** Render (`backend/` as a Python web service, start `uvicorn main:app --host 0.0.0.0 --port $PORT`)
-- **Dashboard:** Vercel (root directory `app`, set `NEXT_PUBLIC_API_URL` to the Render URL)
+**Yuvika Malhotra** — [GitHub](https://github.com/Yuvika687) · [LinkedIn](https://linkedin.com/in/yuvika-malhotra) · [Email](mailto:yuvikamalhotra1414@gmail.com)
 
-Set `OPENAI_API_KEY` and `DATABASE_URL` on the Render service. Set `CORS_ORIGINS` to the Vercel domain.
+<img src="https://capsule-render.vercel.app/api?type=waving&height=120&color=0:F472B6,50:C084FC,100:A78BFA&section=footer&reversal=true" width="100%" alt="Footer wave" />
 
-## What is not in this repo
-
-Forecasting, a prompt-quality advisor, context compression, and full RBAC. Key management is a simple hashed-secret model, not multi-tenant auth.
+</div>
